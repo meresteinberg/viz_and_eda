@@ -33,7 +33,7 @@ Making out first plot :)
 ggplot(weather_df, aes(x = tmin, y = tmax)) +
 geom_point()
 ```
-point says put points for all variables--making a scatterplot for us
+point says put points for all variables--making a scatterplot for us. aes is our aesthetics
 
 ```{r}
 weather_df |> 
@@ -49,6 +49,67 @@ ggp_weather_scatterplot=
   geom_point()
 
 ggp_weather_scatterplot
+```
+
+check why some rows are missing...
+```{r}
+weather_df |> 
+  filter(is.na(tmax))
+```
+telling us there are 17 rows missing tmax
+
+
+## Fancier scatterplots!
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3, size=.8) + 
+  geom_smooth(se = FALSE)
+```
+alpha makes points more transparent
+
+Where you define aesthetics can matter--now putting color=name below and wont be applied to ggplot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_point(aes(color=name), alpha=.3, size=.8) + 
+  geom_smooth(se = FALSE)
+```
+
+use faceting real quick
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  geom_smooth(se= FALSE) + 
+  facet_grid(. ~ name)
+```
+for faced grid . (nothing) goes in rows and name in columns. can reverse it too
+
+Lets make a somewhat more interesting scatterplot 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name, size = prcp)) +
+  geom_point(alpha=.3) +
+  geom_smooth(se= FALSE) +
+  facet_grid(. ~ name)
+```
+
+Learning assessment--need to manipulate data a little bit first
+
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  mutate(
+    tmax_fahr = tmax + (9/5) + 32,
+    tmin_fahr = tmin + (9/5) + 32) |> 
+  ggplot(aes(x=tmin_fahr, y=tmax_fahr)) +
+  geom_point() +
+  geom_smooth(method= "lm", se=FALSE)
 ```
 
 
