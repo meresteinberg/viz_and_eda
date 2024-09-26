@@ -1,1 +1,2 @@
-# viz_and_eda
+# Vizualization and EDA
+some code from this topic is P8105.
