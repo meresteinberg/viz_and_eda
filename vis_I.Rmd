@@ -112,6 +112,133 @@ weather_df |>
   geom_smooth(method= "lm", se=FALSE)
 ```
 
+## Small Things
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=date, y=tmax,)) +
+  geom_point(aes(color=name), alpha=.3, size=.8) +
+  geom_smooth(se= FALSE) 
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_hex()
+```
+
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_point(color= "blue")
+```
+
+## Univeriate plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin)) + 
+  geom_histogram()
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) + 
+  geom_histogram(position = "dodge")
+```
+position command puts bars next to each other rather than on top of eachother
+
+how would i fix this? 
+
+maybe facet?
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) +
+  geom_histogram() +
+  facet_grid(. ~ name)
+```
+
+maybe a density plot?
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) +
+  geom_density(alpha=.3)
+```
+
+boxplot
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=tmin, fill= name)) +
+  geom_boxplot()
+```
+fill will give color to name
+
+violin plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=tmin, fill= name)) +
+  geom_violin()
+```
+
+ridge plot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=name)) +
+  geom_density_ridges()
+```
+
+## Learning Assessment
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp, y=name, fill=name)) +
+ geom_boxplot()
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp, y=name, fill=name)) +
+ geom_density_ridges(scale=.85)
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=prcp)) + 
+  geom_boxplot()
+```
+
+```{r}
+weather_df |> 
+  filter(prcp >10, prcp < 1000) |> 
+  ggplot(aes(x=prcp, fill=name)) +
+  geom_density(alpha=.3)
+```
+
+## Saving and embedding plots
+
+saving plots
+```{r}
+ggp_weather=
+weather_df |> 
+  ggplot(aes(x= date, y=tmax, color=name)) +
+  geom_point()
+
+ggsave("plots/ggp_weather.pdf", ggp_weather, width=8, height=6)
+```
+
+embedding plots
+
+```{r, fig.width=6, fig.asp=.6}
+weather_df |> 
+  ggplot(aes(x= date, y=tmax, color=name)) +
+  geom_point()
+```
+
+
+
 
 
 
