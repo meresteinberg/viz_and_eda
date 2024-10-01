@@ -523,3 +523,163 @@ weather_df |>
     ## (`geom_point()`).
 
 ![](vis_II_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+## Themes
+
+``` r
+ggp_scatterplot=
+  weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  labs(
+    title= "Temperature Scatterplot",
+    x= "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    color= "Location",
+    caption= "Weather data taken ffrom rnoaa package for three stations"
+  ) +
+  scale_color_hue(h= c(100,400)) + 
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+    ## Scale for colour is already present.
+    ## Adding another scale for colour, which will replace the existing scale.
+
+``` r
+ggp_scatterplot + 
+  theme(legend.position = "bottom")
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+Order matters.. making background black and white and then putting
+legend on bottom. if put legend position first wouldnt be on bottom bc
+themebw resets it. theme_minimal is like theme bw but without outside
+box
+
+``` r
+ggp_scatterplot +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+
+``` r
+ggp_scatterplot +
+ theme(legend.position = "bottom") +
+  ggthemes::theme_excel()
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+Learning assessment
+
+``` r
+weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  geom_smooth (se= FALSE) +
+  viridis::scale_color_viridis(discrete = TRUE) +
+  labs(
+    title= "Temperature Plot",
+    x= "Date",
+    y= "Maximum Temperature (C)",
+    size= "Precipitation"
+  ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
+Extra bonus stuff in ‘ggplot’ Use diff datasets in diff ’geom’s
+
+``` r
+central_park_df=
+  weather_df |> 
+  filter(name== "CentralPark_NY")
+
+molokai_df=
+  weather_df |> 
+  filter(name== "Molokai_HI")
+
+molokai_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point() +
+  geom_line(data= central_park_df)
+```
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+
+## Multiple panels
+
+``` r
+weather_df |> 
+  ggplot(aes(x= tmax, fill=name)) +
+  geom_density() +
+  facet_grid(. ~ name)
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_density()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+``` r
+ggplot_tmax_tmin=
+  weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3)
+
+ggp_tmax_density=
+  weather_df |> 
+  ggplot(aes(x= tmax, fill=name)) +
+  geom_density(alpha=.3) 
+
+ggp_tmax_date=
+  weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point() +
+  geom_smooth(se=FALSE)
+
+
+(ggp_tmax_density + ggplot_tmax_tmin)/ ggp_tmax_date
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_density()`).
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_smooth()`).
+    ## Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_II_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+
+## Data manipulation

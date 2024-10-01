@@ -7,6 +7,7 @@ date: "2024-10-01"
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggridges)
+library(patchwork)
 ```
 
 ```{r}
@@ -293,11 +294,116 @@ weather_df |>
   viridis::scale_color_viridis(discrete = TRUE)
 ```
 
+## Themes
+
+```{r}
+ggp_scatterplot=
+  weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  labs(
+    title= "Temperature Scatterplot",
+    x= "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    color= "Location",
+    caption= "Weather data taken ffrom rnoaa package for three stations"
+  ) +
+  scale_color_hue(h= c(100,400)) + 
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+```{r}
+ggp_scatterplot + 
+  theme(legend.position = "bottom")
+```
+
+Order matters..
+making background black and white and then putting legend on bottom. if put legend position first wouldnt be on bottom bc themebw resets it. theme_minimal is like theme bw but without outside box
+```{r}
+ggp_scatterplot +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+ggp_scatterplot +
+ theme(legend.position = "bottom") +
+  ggthemes::theme_excel()
+```
+
+Learning assessment
+```{r}
+weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  geom_smooth (se= FALSE) +
+  viridis::scale_color_viridis(discrete = TRUE) +
+  labs(
+    title= "Temperature Plot",
+    x= "Date",
+    y= "Maximum Temperature (C)",
+    size= "Precipitation"
+  ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+
+```
+
+Extra bonus stuff in 'ggplot'
+Use diff datasets in diff 'geom's
+
+```{r}
+central_park_df=
+  weather_df |> 
+  filter(name== "CentralPark_NY")
+
+molokai_df=
+  weather_df |> 
+  filter(name== "Molokai_HI")
+
+molokai_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point() +
+  geom_line(data= central_park_df)
+```
+
+## Multiple panels
+
+```{r}
+weather_df |> 
+  ggplot(aes(x= tmax, fill=name)) +
+  geom_density() +
+  facet_grid(. ~ name)
+```
+
+```{r}
+ggplot_tmax_tmin=
+  weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3)
+
+ggp_tmax_density=
+  weather_df |> 
+  ggplot(aes(x= tmax, fill=name)) +
+  geom_density(alpha=.3) 
+
+ggp_tmax_date=
+  weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name)) +
+  geom_point() +
+  geom_smooth(se=FALSE)
+
+
+(ggp_tmax_density + ggplot_tmax_tmin)/ ggp_tmax_date
+```
 
 
 
+## Data manipulation
 
+```{r}
 
+```
 
 
 
