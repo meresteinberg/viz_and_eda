@@ -1,0 +1,303 @@
+---
+title: "Vis II"
+output: github_document
+date: "2024-10-01"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggridges)
+```
+
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = case_match(
+      id, 
+      "USW00094728" ~ "CentralPark_NY", 
+      "USW00022534" ~ "Molokai_HI",
+      "USS0023B17S" ~ "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
+
+Making out first plot :)
+
+```{r}
+ggplot(weather_df, aes(x = tmin, y = tmax)) +
+geom_point()
+```
+point says put points for all variables--making a scatterplot for us. aes is our aesthetics
+
+```{r}
+weather_df |> 
+  ggplot(aes (x =tmin, y=tmax)) + 
+  geom_point()
+```
+can also do it this way
+
+```{r}
+ggp_weather_scatterplot=
+  weather_df |> 
+   ggplot(aes (x =tmin, y=tmax)) + 
+  geom_point()
+
+ggp_weather_scatterplot
+```
+
+check why some rows are missing...
+```{r}
+weather_df |> 
+  filter(is.na(tmax))
+```
+telling us there are 17 rows missing tmax
+
+
+## Fancier scatterplots!
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3, size=.8) + 
+  geom_smooth(se = FALSE)
+```
+alpha makes points more transparent
+
+Where you define aesthetics can matter--now putting color=name below and wont be applied to ggplot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_point(aes(color=name), alpha=.3, size=.8) + 
+  geom_smooth(se = FALSE)
+```
+
+use faceting real quick
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  geom_smooth(se= FALSE) + 
+  facet_grid(. ~ name)
+```
+for faced grid . (nothing) goes in rows and name in columns. can reverse it too
+
+Lets make a somewhat more interesting scatterplot 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=date, y=tmax, color=name, size = prcp)) +
+  geom_point(alpha=.3) +
+  geom_smooth(se= FALSE) +
+  facet_grid(. ~ name)
+```
+
+Learning assessment--need to manipulate data a little bit first
+
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  mutate(
+    tmax_fahr = tmax + (9/5) + 32,
+    tmin_fahr = tmin + (9/5) + 32) |> 
+  ggplot(aes(x=tmin_fahr, y=tmax_fahr)) +
+  geom_point() +
+  geom_smooth(method= "lm", se=FALSE)
+```
+
+## Small Things
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=date, y=tmax,)) +
+  geom_point(aes(color=name), alpha=.3, size=.8) +
+  geom_smooth(se= FALSE) 
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_hex()
+```
+
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_point(color= "blue")
+```
+
+## Univeriate plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin)) + 
+  geom_histogram()
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) + 
+  geom_histogram(position = "dodge")
+```
+position command puts bars next to each other rather than on top of eachother
+
+how would i fix this? 
+
+maybe facet?
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) +
+  geom_histogram() +
+  facet_grid(. ~ name)
+```
+
+maybe a density plot?
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, fill=name)) +
+  geom_density(alpha=.3)
+```
+
+boxplot
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=tmin, fill= name)) +
+  geom_boxplot()
+```
+fill will give color to name
+
+violin plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=tmin, fill= name)) +
+  geom_violin()
+```
+
+ridge plot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=name)) +
+  geom_density_ridges()
+```
+
+## Learning Assessment
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp, y=name, fill=name)) +
+ geom_boxplot()
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp, y=name, fill=name)) +
+ geom_density_ridges(scale=.85)
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=name, y=prcp)) + 
+  geom_boxplot()
+```
+
+```{r}
+weather_df |> 
+  filter(prcp >10, prcp < 1000) |> 
+  ggplot(aes(x=prcp, fill=name)) +
+  geom_density(alpha=.3)
+```
+
+## Saving and embedding plots
+
+saving plots
+```{r}
+ggp_weather=
+weather_df |> 
+  ggplot(aes(x= date, y=tmax, color=name)) +
+  geom_point()
+
+ggsave("plots/ggp_weather.pdf", ggp_weather, width=8, height=6)
+```
+
+embedding plots
+
+```{r, fig.width=6, fig.asp=.6}
+weather_df |> 
+  ggplot(aes(x= date, y=tmax, color=name)) +
+  geom_point()
+```
+
+Vis II notes start..
+Make a scatterplot but fancy this time 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  labs(
+    title= "Temperature Scatterplot",
+    x= "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    color= "Location",
+    caption= "Weather data taken ffrom rnoaa package for three stations"
+  )
+```
+
+Scales--start with 'x' and 'y' and then do 'color'
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  labs(
+    title= "Temperature Scatterplot",
+    x= "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    color= "Location",
+    caption= "Weather data taken ffrom rnoaa package for three stations"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, 0, 20),
+    labels = c("-15C", "0", "20")
+  ) + 
+  scale_y_continuous(
+    limits = c(0, 30),
+    transform = "sqrt"
+  )
+```
+
+Look at color:
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(alpha=.3) +
+  labs(
+    title= "Temperature Scatterplot",
+    x= "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    color= "Location",
+    caption= "Weather data taken ffrom rnoaa package for three stations"
+  ) +
+  scale_color_hue(h= c(100,400)) + 
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+
+
+
+
+
+
+
+
