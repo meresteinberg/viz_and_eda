@@ -216,3 +216,64 @@ weather_df |>
     ##    Waterhole_WA  319      395
 
 ## general numeric summaries
+
+lets try some other useful summaries
+
+computing these summaries by name bc of group() function: can also do
+month, name and month, etc.
+
+``` r
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    mean_tmax= mean(tmax, na.rm=TRUE),
+    median_tmin=median(tmin, na.rm=TRUE),
+    sd_prcp= sd(prcp, na.rm=TRUE)
+  )
+```
+
+    ## # A tibble: 3 × 4
+    ##   name           mean_tmax median_tmin sd_prcp
+    ##   <chr>              <dbl>       <dbl>   <dbl>
+    ## 1 CentralPark_NY     17.7         10     113. 
+    ## 2 Molokai_HI         28.3         20.6    63.2
+    ## 3 Waterhole_WA        7.38        -0.6   111.
+
+summarize and then plot…
+
+``` r
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax= mean(tmax, na.rm=TRUE),
+    median_tmin=median(tmin, na.rm=TRUE),
+    sd_prcp= sd(prcp, na.rm=TRUE)
+  ) |> 
+  ggplot(aes(x = month, y = mean_tmax, color=name)) +
+  geom_point() +
+  geom_line()
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+![](eda_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+format for readers
+
+``` r
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    mean_tmax= mean(tmax, na.rm=TRUE)
+  ) |> 
+  pivot_wider(
+    names_from=name,
+    values_from= mean_tmax
+  ) |> 
+  knitr::kable(digits= 3)
+```
+
+| CentralPark_NY | Molokai_HI | Waterhole_WA |
+|---------------:|-----------:|-------------:|
+|         17.658 |     28.319 |         7.38 |
