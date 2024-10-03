@@ -1,0 +1,127 @@
+---
+title: "EDA"
+output: github_document
+date: "2024-10-03"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+```
+
+adding in month=floor_date() function
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = case_match(
+      id, 
+      "USW00094728" ~ "CentralPark_NY", 
+      "USW00022534" ~ "Molokai_HI",
+      "USS0023B17S" ~ "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month= floor_date(date, unit= "month")) |>
+  select(name, id, everything())
+```
+
+Let's make some plots 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp)) +
+  geom_histogram()
+```
+
+showing real datapoints that had abnormally large rainfalls. do we care about outliers?
+```{r}
+weather_df |> 
+  filter(prcp>1000)
+```
+
+```{r}
+weather_df |> 
+  filter(tmax>20, tmax<30) |> 
+  ggplot(aes(x=tmin, y=tmax, color=name, shape=name)) +
+  geom_point()
+```
+
+## group_by()
+
+tells you how many groups of whatever variable you're putting in
+```{r}
+weather_df |> 
+  group_by(name)
+```
+
+counting stuff
+
+tells us how many obs we have and how many distinct months we have
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+      n_obs=n(),
+      n_dist=n_distinct(month))
+```
+
+grouping by name and month
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+      n_obs=n())
+```
+
+counting how many obs with count()
+```{r}
+weather_df |> 
+  count(name)
+```
+
+
+## 2x2 
+
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  filter(name !="Molokai_HI") |> 
+  mutate(
+    cold = case_when(
+      tmax <5 ~ "cold",
+      tmax >=5 ~ "not_cold"
+    )
+  ) |> 
+  group_by(name, cold) |> 
+  summarize(count = n())
+```
+could pivot wider above to make a 2x2
+
+
+
+janitor package tabyl() also produces a 2x2 (DO NOT USE table())
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  filter(name !="Molokai_HI") |> 
+  mutate(
+    cold = case_when(
+      tmax <5 ~ "cold",
+      tmax >=5 ~ "not_cold"
+    )
+  ) |> 
+  janitor::tabyl(name, cold)
+```
+
+## general numeric summaries
+
+```{r}
+
+```
+
+
+
